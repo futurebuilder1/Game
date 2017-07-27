@@ -1,7 +1,5 @@
-package PACKAGE_NAME;
+import java.awt.*;
 
-/**
- * Created by IGMAdmin on 7/26/2017.
- */
-public class Oval {
+public class Oval extends Rectangle {
+
 }

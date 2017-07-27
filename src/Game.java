@@ -50,6 +50,8 @@ public class Game extends JFrame implements KeyListener {
     int sz2;
     int sz3;
 
+    int score = 0;
+
     public Game(int width, int height, int fps){
         super("Tanks");
         this.MAX_FPS = fps;
@@ -85,23 +87,23 @@ public class Game extends JFrame implements KeyListener {
         //set background window color
         setBackground(Color.BLACK);
 
-        p = new Vector(WIDTH/2,HEIGHT/2);
+        p = new Vector(100,250);
         v = new Vector(0,0);
         a = new Vector(0,0);
 
-        p2 = new Vector(WIDTH/2 + 150, HEIGHT/2 + 150);
+        p2 = new Vector(650, 250);
         v2 = new Vector(0,0);
         a2 = new Vector(0,0);
 
-        p3 = new Vector(WIDTH/2 - 250, HEIGHT/2 - 200);
+        p3 = new Vector(400, 150);
         v3 = new Vector(0,0);
         a3 = new Vector(0,0);
 
-        sz = 100;
-        push = 1000;
+        sz = 50;
+        push = 350;
 
         sz2 = sz;
-        sz3 = sz + 100;
+        sz3 = sz;
     }
 
     /*
@@ -146,14 +148,17 @@ public class Game extends JFrame implements KeyListener {
         // aabb collision detection
         if (
                 // sz & sz2 = width and height
-                p.x < p2.x + sz2 && // x1 min < x2 max, x1 < x2 + w2
-                p.x + sz > p2.x && // x1 max > x2 min, x1 + w1 > x2
-                p.y < p2.y + sz2 && // y2 min < y2 max
-                p.y + sz > p2.y // y1 max > y2 min
+                isColliding(p, new Vector(sz, sz), p2, new Vector(sz2, sz2))
                 ) {
             // v = v * (p - p2)
             v = Vector.mult(Vector.normalize(Vector.sub(p, p2)), v.mag());
             v2 = Vector.mult(Vector.normalize(Vector.sub(p2, p)), v2.mag());
+        }
+
+        if (
+                isColliding(p, new Vector(sz, sz), p3, new Vector(sz3 + 50, sz3 + 250))
+        ) {
+            v = Vector.mult(Vector.normalize(Vector.sub(p, p3)), v.mag());
         }
 
         //v += a * dt;
@@ -172,6 +177,13 @@ public class Game extends JFrame implements KeyListener {
         v3.mult(friction);
         p3.add(Vector.mult(v3, dt));
         a3 = new Vector(0,0);
+    }
+
+    boolean isColliding(Vector p, Vector sz, Vector p2, Vector sz2) {
+        return p.x < p2.x + sz2.x && // x1 min < x2 max, x1 < x2 + w2
+                p.x + sz.x > p2.x && // x1 max > x2 min, x1 + w1 > x2
+                p.y < p2.y + sz2.y && // y2 min < y2 max
+                p.y + sz.y > p2.y; // y1 max > y2 min
     }
 
     /*
@@ -193,12 +205,18 @@ public class Game extends JFrame implements KeyListener {
         g.setColor(new Color(75, 255, 50));
         g.fillRect(p2.ix, p2.iy, sz2, sz2);
 
-        g.setColor(new Color(100, 50, 250));
-        g.fillRect(p3.ix, p3.iy, sz3, sz3);
+        g.setColor(new Color(10, 50, 250));
+        g.fillRect(p3.ix, p3.iy, sz3 + 50, sz3 + 250);
 
         //draw fps
-        g.setColor(Color.GREEN);
+        g.setColor(Color.BLACK);
         g.drawString(Long.toString(fps), 10, 40);
+
+        // draw score
+        g.setColor(Color.WHITE);
+        Font myFont = new Font("Times New Roman", 1, 20);
+        g.setFont(myFont);
+        g.drawString("Score: " + score, 15, 50);
 
         //release resources, show the buffer
         g.dispose();
@@ -208,47 +226,21 @@ public class Game extends JFrame implements KeyListener {
     private void handleKeys() {
         for (int i = 0; i < keys.size(); i++) {
             switch(keys.get(i)) {
-                case KeyEvent.VK_W:
+                case KeyEvent.VK_UP:
                     a = Vector.unit2D((float)Math.toRadians(-90));
                     a.mult(push);
                     break;
-                case KeyEvent.VK_S:
+                case KeyEvent.VK_DOWN:
                     a = Vector.unit2D((float)Math.toRadians(90));
                     a.mult(push);
                     break;
-                case KeyEvent.VK_A:
+                case KeyEvent.VK_LEFT:
                     a = Vector.unit2D((float)Math.PI);
                     a.mult(push);
                     break;
-                case KeyEvent.VK_D:
+                case KeyEvent.VK_RIGHT:
                     a = Vector.unit2D(0);
                     a.mult(push);
-                    break;
-
-                case KeyEvent.VK_I:
-                    a2 = Vector.unit2D((float)Math.toRadians(-90));
-                    a2.mult(push);
-                    break;
-                case KeyEvent.VK_K:
-                    a2 = Vector.unit2D((float)Math.toRadians(90));
-                    a2.mult(push);
-                    break;
-                case KeyEvent.VK_J:
-                    a2 = Vector.unit2D((float)Math.PI);
-                    a2.mult(push);
-                    break;
-                case KeyEvent.VK_L:
-                    a2 = Vector.unit2D(0);
-                    a2.mult(push);
-                    break;
-
-                case KeyEvent.VK_UP:
-                    a3 = Vector.unit2D((float)Math.toRadians(-90));
-                    a3.mult(push);
-                    break;
-                case KeyEvent.VK_DOWN:
-                    a3 = Vector.unit2D((float)Math.toRadians(90));
-                    a3.mult(push);
                     break;
             }
         }
