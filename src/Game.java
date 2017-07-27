@@ -1,6 +1,8 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
@@ -15,6 +17,26 @@ public class Game extends JFrame implements KeyListener {
     private final int MAX_FPS; //maximum refresh rate
     private final int WIDTH; //window width
     private final int HEIGHT; //window height
+
+    // game states
+    public enum GAME_STATES {
+        MENU,
+        GAME,
+        SCORE
+    }
+
+    public GAME_STATES GameState;
+
+    // main menu elements
+    private JPanel Menu;
+    private JButton Menu_Play;
+    private JButton Menu_Exit;
+
+    // score menu elements
+    private JPanel Score;
+    private JButton Score_Play;
+    private JButton Score_Menu;
+    private JLabel Score_Score;
 
     //double buffer strategy
     private BufferStrategy strategy;
@@ -70,6 +92,39 @@ public class Game extends JFrame implements KeyListener {
 
         //set jframe visible
         setVisible(true);
+
+        // menu panel
+        Menu = new JPanel(new GridLayout(2, 1));
+        Menu.setPreferredSize(new Dimension(WIDTH, 250));
+
+        // initialize buttons
+        Menu_Play = new JButton("Start Game"){{
+            addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Menu.setVisible(false);
+                    GameState = GAME_STATES.GAME;
+                }
+            });
+        }};
+
+        Menu_Exit = new JButton("Exit Game") {{
+           addActionListener(new ActionListener() {
+                @Override
+               public void actionPerformed(ActionEvent e) { System.exit(0); }
+           });
+        }};
+
+        // add buttons
+        Menu.add(Menu_Play);
+        Menu.add(Menu_Exit);
+
+        Menu.setVisible(true);
+        this.getContentPane().add(Menu, BorderLayout.SOUTH);
+
+        // score panel
+        Score = new 
 
         //set default close operation
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
