@@ -27,16 +27,9 @@ public class Game extends JFrame implements KeyListener {
 
     public GAME_STATES GameState;
 
-    // main menu elements
-    private JPanel Menu;
-    private JButton Menu_Play;
-    private JButton Menu_Exit;
+    public static int SCORE;
 
-    // score menu elements
-    private JPanel Score;
-    private JButton Score_Play;
-    private JButton Score_Menu;
-    private JLabel Score_Score;
+    private PlayerTank player;
 
     //double buffer strategy
     private BufferStrategy strategy;
@@ -93,39 +86,6 @@ public class Game extends JFrame implements KeyListener {
         //set jframe visible
         setVisible(true);
 
-        // menu panel
-        Menu = new JPanel(new GridLayout(2, 1));
-        Menu.setPreferredSize(new Dimension(WIDTH, 250));
-
-        // initialize buttons
-        Menu_Play = new JButton("Start Game"){{
-            addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    Menu.setVisible(false);
-                    GameState = GAME_STATES.GAME;
-                }
-            });
-        }};
-
-        Menu_Exit = new JButton("Exit Game") {{
-           addActionListener(new ActionListener() {
-                @Override
-               public void actionPerformed(ActionEvent e) { System.exit(0); }
-           });
-        }};
-
-        // add buttons
-        Menu.add(Menu_Play);
-        Menu.add(Menu_Exit);
-
-        Menu.setVisible(true);
-        this.getContentPane().add(Menu, BorderLayout.SOUTH);
-
-        // score panel
-        Score = new 
-
         //set default close operation
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -159,6 +119,8 @@ public class Game extends JFrame implements KeyListener {
 
         sz2 = sz;
         sz3 = sz;
+
+        GameState = GAME_STATES.GAME;
     }
 
     /*
@@ -171,6 +133,22 @@ public class Game extends JFrame implements KeyListener {
         fps = (int)(1f/dt);
 
         handleKeys();
+
+        switch(GameState) {
+            case MENU:
+                break;
+            case GAME:
+                player.update(dt);
+                player.wrap(WIDTH, HEIGHT);
+
+                if(player.isGameOver()){
+                    ResetGame();
+                }
+
+                break;
+            case SCORE:
+                break;
+        }
 
         // wall collision
         if (p.x + sz > WIDTH || p.x < 0) {
@@ -247,35 +225,49 @@ public class Game extends JFrame implements KeyListener {
      * disposes canvas and then flips the buffer
      */
     private void draw(){
-        //get canvas
-        Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+        switch(GameState) {
+            case MENU:
+                break;
+            case GAME:
+                //get canvas
+                Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 
-        //clear screen
-        g.clearRect(0,0, WIDTH, HEIGHT);
+                //clear screen
+                g.clearRect(0,0, WIDTH, HEIGHT);
 
-        //g.setColor(Color.red);
-        g.setColor(new Color(0, 200, 255));
-        g.fillRect(p.ix, p.iy, sz, sz);
+                //g.setColor(Color.red);
+                g.setColor(new Color(0, 200, 255));
+                g.fillRect(p.ix, p.iy, sz, sz);
 
-        g.setColor(new Color(75, 255, 50));
-        g.fillRect(p2.ix, p2.iy, sz2, sz2);
+                g.setColor(new Color(75, 255, 50));
+                g.fillRect(p2.ix, p2.iy, sz2, sz2);
 
-        g.setColor(new Color(10, 50, 250));
-        g.fillRect(p3.ix, p3.iy, sz3 + 50, sz3 + 250);
+                g.setColor(new Color(10, 50, 250));
+                g.fillRect(p3.ix, p3.iy, sz3 + 50, sz3 + 250);
 
-        //draw fps
-        g.setColor(Color.BLACK);
-        g.drawString(Long.toString(fps), 10, 40);
+                //draw fps
+                g.setColor(Color.BLACK);
+                g.drawString(Long.toString(fps), 10, 40);
 
-        // draw score
-        g.setColor(Color.WHITE);
-        Font myFont = new Font("Times New Roman", 1, 20);
-        g.setFont(myFont);
-        g.drawString("Score: " + score, 15, 50);
+                // draw score
+                g.setColor(Color.WHITE);
+                Font myFont = new Font("Times New Roman", 1, 20);
+                g.setFont(myFont);
+                g.drawString("Score: " + score, 15, 50);
 
-        //release resources, show the buffer
-        g.dispose();
-        strategy.show();
+                //release resources, show the buffer
+                g.dispose();
+                strategy.show();
+                break;
+            case SCORE:
+                break;
+        }
+    }
+
+    public void ResetGame(){
+        player = new PlayerTank(WIDTH/2, HEIGHT/2, Color.PINK);
+
+        SCORE = 0;
     }
 
     private void handleKeys() {
