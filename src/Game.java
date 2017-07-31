@@ -22,6 +22,8 @@ public class Game extends JFrame implements KeyListener {
     public enum GAME_STATES {
         MENU,
         GAME,
+        STORE,
+        TANK_STORE,
         SCORE
     }
 
@@ -65,7 +67,21 @@ public class Game extends JFrame implements KeyListener {
     int sz2;
     int sz3;
 
+    JPanel Menu;
+    JButton Menu_Play;
+    JButton Menu_Store;
+    JButton Menu_Exit;
+
+    JPanel Store;
+    JButton Store_Tanks;
+    JButton Store_Menu;
+
+    JPanel TanksStore;
+    JButton TanksStore_TankTwo;
+    JButton TanksStore_Store;
+
     int score = 0;
+    int money = 0;
 
     public Game(int width, int height, int fps){
         super("Tanks");
@@ -79,15 +95,134 @@ public class Game extends JFrame implements KeyListener {
      * initializes all variables needed before the window opens and refreshes
      */
     void init(){
-        //initializes window size
+        //initialize JFrame
+        setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new BorderLayout());
         setBounds(0, 0, WIDTH, HEIGHT);
-        setResizable(false);
+
+        lastFrame = System.currentTimeMillis();
+
+        /* UI ELEMENTS */
+
+        // menu
+        Menu = new JPanel(new GridLayout(3, 1));
+        Menu.setPreferredSize(new Dimension(WIDTH, 250));
+
+        // play game
+        Menu_Play = new JButton("Play!");
+        Menu_Play.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                GameState = GAME_STATES.GAME;
+                Menu.setVisible(false);
+            }
+        });
+
+        // go to store
+        Menu_Store = new JButton("Store");
+        Menu_Store.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                GameState = GAME_STATES.STORE;
+                Menu.setVisible(false);
+                Store.setVisible(true);
+                System.out.println("The state of the game: " + GameState);
+            }
+        });
+
+        // exit game
+        Menu_Exit = new JButton("Exit");
+        Menu_Exit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                System.exit(0);
+            }
+        });
+
+        // add buttons
+        Menu.add(Menu_Play);
+        Menu.add(Menu_Store);
+        Menu.add(Menu_Exit);
+
+        // set menu visible
+        Menu.setVisible(true);
+
+        this.getContentPane().add(Menu, BorderLayout.SOUTH);
+        this.pack();
+
+        // store
+        Store = new JPanel(new GridLayout(2, 1));
+        Store.setPreferredSize(new Dimension(WIDTH, 250));
+
+        // go to tanks store
+        Store_Tanks = new JButton("Tanks Store");
+        Store_Tanks.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Store.setVisible(false);
+                GameState = GAME_STATES.TANK_STORE;
+                TanksStore.setVisible(true);
+            }
+        });
+
+        // go back to main menu
+        Store_Menu = new JButton("Main Menu");
+        Store_Menu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                Store.setVisible(false);
+                GameState = GAME_STATES.MENU;
+                Menu.setVisible(true);
+            }
+        });
+
+        // add buttons
+        Store.add(Store_Tanks);
+        Store.add(Store_Menu);
+
+        // set store invisible
+        Store.setVisible(false);
+
+        this.getContentPane().add(Store, BorderLayout.SOUTH);
+        this.pack();
+
+        // tanks store
+        TanksStore = new JPanel(new GridLayout(2, 1));
+        TanksStore.setPreferredSize(new Dimension(WIDTH, 250));
+
+        // buy tank two
+        TanksStore_TankTwo = new JButton("Tank Two");
+        TanksStore_TankTwo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                TanksStore_TankTwo.setVisible(false);
+            }
+        });
+
+        // back to store
+        TanksStore_Store = new JButton("Store");
+        TanksStore_Store.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                TanksStore.setVisible(false);
+                GameState = GAME_STATES.STORE;
+                Store.setVisible(true);
+            }
+        });
+
+        // add buttons
+        TanksStore.add(TanksStore_TankTwo);
+        TanksStore.add(TanksStore_Store);
+
+        // set tanks store invisible
+        TanksStore.setVisible(false);
+
+        this.getContentPane().add(TanksStore, BorderLayout.SOUTH);
+        this.pack();
 
         //set jframe visible
         setVisible(true);
-
-        //set default close operation
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //create double buffer strategy
         createBufferStrategy(2);
@@ -99,9 +234,7 @@ public class Game extends JFrame implements KeyListener {
         //set initial lastFrame var
         lastFrame = System.currentTimeMillis();
 
-        //set background window color
-        setBackground(Color.BLACK);
-
+        // background
         p = new Vector(100,250);
         v = new Vector(0,0);
         a = new Vector(0,0);
@@ -120,7 +253,7 @@ public class Game extends JFrame implements KeyListener {
         sz2 = sz;
         sz3 = sz;
 
-        GameState = GAME_STATES.GAME;
+        GameState = GAME_STATES.MENU;
     }
 
     /*
@@ -133,22 +266,6 @@ public class Game extends JFrame implements KeyListener {
         fps = (int)(1f/dt);
 
         handleKeys();
-
-        switch(GameState) {
-            case MENU:
-                break;
-            case GAME:
-                player.update(dt);
-                player.wrap(WIDTH, HEIGHT);
-
-                if(player.isGameOver()){
-                    ResetGame();
-                }
-
-                break;
-            case SCORE:
-                break;
-        }
 
         // wall collision
         if (p.x + sz > WIDTH || p.x < 0) {
@@ -229,35 +346,47 @@ public class Game extends JFrame implements KeyListener {
             case MENU:
                 break;
             case GAME:
+                //set background window color
+                setBackground(Color.BLACK);
+
                 //get canvas
-                Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+                Graphics2D gGame = (Graphics2D) strategy.getDrawGraphics();
 
                 //clear screen
-                g.clearRect(0,0, WIDTH, HEIGHT);
+                gGame.clearRect(0,0, WIDTH, HEIGHT);
 
                 //g.setColor(Color.red);
-                g.setColor(new Color(0, 200, 255));
-                g.fillRect(p.ix, p.iy, sz, sz);
+                gGame.setColor(new Color(0, 200, 255));
+                gGame.fillRect(p.ix, p.iy, sz, sz);
 
-                g.setColor(new Color(75, 255, 50));
-                g.fillRect(p2.ix, p2.iy, sz2, sz2);
+                gGame.setColor(new Color(75, 255, 50));
+                gGame.fillRect(p2.ix, p2.iy, sz2, sz2);
 
-                g.setColor(new Color(10, 50, 250));
-                g.fillRect(p3.ix, p3.iy, sz3 + 50, sz3 + 250);
+                gGame.setColor(new Color(10, 50, 250));
+                gGame.fillRect(p3.ix, p3.iy, sz3 + 50, sz3 + 250);
 
                 //draw fps
-                g.setColor(Color.BLACK);
-                g.drawString(Long.toString(fps), 10, 40);
+                gGame.setColor(Color.BLACK);
+                gGame.drawString(Long.toString(fps), 10, 40);
 
                 // draw score
-                g.setColor(Color.WHITE);
+                gGame.setColor(Color.WHITE);
                 Font myFont = new Font("Times New Roman", 1, 20);
-                g.setFont(myFont);
-                g.drawString("Score: " + score, 15, 50);
+                gGame.setFont(myFont);
+                gGame.drawString("Score: " + score, 15, 50);
+
+                // draw money
+                gGame.setColor(Color.WHITE);
+                gGame.setFont(myFont);
+                gGame.drawString("Money: " + money, 650, 50);
 
                 //release resources, show the buffer
-                g.dispose();
+                gGame.dispose();
                 strategy.show();
+                break;
+            case STORE:
+                break;
+            case TANK_STORE:
                 break;
             case SCORE:
                 break;
