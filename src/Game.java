@@ -23,15 +23,12 @@ public class Game extends JFrame implements KeyListener {
         MENU,
         GAME,
         STORE,
-        TANK_STORE,
         SCORE
     }
 
     public GAME_STATES GameState;
 
     public static int SCORE;
-
-    private PlayerTank player;
 
     //double buffer strategy
     private BufferStrategy strategy;
@@ -73,15 +70,21 @@ public class Game extends JFrame implements KeyListener {
     JButton Menu_Exit;
 
     JPanel Store;
-    JButton Store_Tanks;
+    JButton Store_TankTwo;
+    JButton Store_TankThree;
+    JButton Store_TankFour;
+    JButton Store_TankFive;
+    JButton Store_TankSix;
     JButton Store_Menu;
-
-    JPanel TanksStore;
-    JButton TanksStore_TankTwo;
-    JButton TanksStore_Store;
 
     int score = 0;
     int money = 0;
+
+    int notUnlocked = 0;
+    int unlocked = 1;
+    int[] tankUnlocked = new int[6];
+
+    private PlayerTank player;
 
     public Game(int width, int height, int fps){
         super("Tanks");
@@ -102,6 +105,14 @@ public class Game extends JFrame implements KeyListener {
         setBounds(0, 0, WIDTH, HEIGHT);
 
         lastFrame = System.currentTimeMillis();
+
+        // set state of tank (unlocked or locked)
+        tankUnlocked[0] = unlocked;
+        tankUnlocked[1] = notUnlocked;
+        tankUnlocked[2] = notUnlocked;
+        tankUnlocked[3] = notUnlocked;
+        tankUnlocked[4] = notUnlocked;
+        tankUnlocked[5] = notUnlocked;
 
         /* UI ELEMENTS */
 
@@ -127,7 +138,6 @@ public class Game extends JFrame implements KeyListener {
                 GameState = GAME_STATES.STORE;
                 Menu.setVisible(false);
                 Store.setVisible(true);
-                System.out.println("The state of the game: " + GameState);
             }
         });
 
@@ -152,21 +162,70 @@ public class Game extends JFrame implements KeyListener {
         this.pack();
 
         // store
-        Store = new JPanel(new GridLayout(2, 1));
+        Store = new JPanel(new GridLayout(2, 3));
         Store.setPreferredSize(new Dimension(WIDTH, 250));
 
-        // go to tanks store
-        Store_Tanks = new JButton("Tanks Store");
-        Store_Tanks.addActionListener(new ActionListener() {
+        // go back to main menu
+        Store_TankTwo = new JButton("Tank Two - Cost: 1500 Money");
+        Store_TankTwo.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                Store.setVisible(false);
-                GameState = GAME_STATES.TANK_STORE;
-                TanksStore.setVisible(true);
+            public void actionPerformed(ActionEvent actionEvent) {
+                if (money >= 1500) {
+                    tankUnlocked[1] = unlocked;
+                    money -= 1500;
+                    Store_TankTwo.setVisible(false);
+                }
             }
         });
 
-        // go back to main menu
+        Store_TankThree = new JButton("Tank Three - Cost: 3000 Money");
+        Store_TankThree.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if (money >= 3000) {
+                    tankUnlocked[2] = unlocked;
+                    money -= 3000;
+                    Store_TankThree.setVisible(false);
+                }
+            }
+        });
+
+        Store_TankFour = new JButton("Tank Four - Cost: 5000 Money");
+        Store_TankFour.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if (money >= 5000) {
+                    tankUnlocked[3] = unlocked;
+                    money -= 5000;
+                    Store_TankFour.setVisible(false);
+                }
+            }
+        });
+
+        Store_TankFive = new JButton("Tank Five - Cost: 7500 Money");
+        Store_TankFive.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if (money >= 7500) {
+                    tankUnlocked[4] = unlocked;
+                    money -= 7500;
+                    Store_TankFive.setVisible(false);
+                }
+            }
+        });
+
+        Store_TankSix = new JButton("Tank Six - Cost: 10000 Money");
+        Store_TankSix.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if (money >= 10000) {
+                    tankUnlocked[5] = unlocked;
+                    money -= 10000;
+                    Store_TankSix.setVisible(false);
+                }
+            }
+        });
+
         Store_Menu = new JButton("Main Menu");
         Store_Menu.addActionListener(new ActionListener() {
             @Override
@@ -178,47 +237,17 @@ public class Game extends JFrame implements KeyListener {
         });
 
         // add buttons
-        Store.add(Store_Tanks);
+        Store.add(Store_TankTwo);
+        Store.add(Store_TankThree);
+        Store.add(Store_TankFour);
+        Store.add(Store_TankFive);
         Store.add(Store_Menu);
+        Store.add(Store_TankSix);
 
         // set store invisible
         Store.setVisible(false);
 
         this.getContentPane().add(Store, BorderLayout.SOUTH);
-        this.pack();
-
-        // tanks store
-        TanksStore = new JPanel(new GridLayout(2, 1));
-        TanksStore.setPreferredSize(new Dimension(WIDTH, 250));
-
-        // buy tank two
-        TanksStore_TankTwo = new JButton("Tank Two");
-        TanksStore_TankTwo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                TanksStore_TankTwo.setVisible(false);
-            }
-        });
-
-        // back to store
-        TanksStore_Store = new JButton("Store");
-        TanksStore_Store.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                TanksStore.setVisible(false);
-                GameState = GAME_STATES.STORE;
-                Store.setVisible(true);
-            }
-        });
-
-        // add buttons
-        TanksStore.add(TanksStore_TankTwo);
-        TanksStore.add(TanksStore_Store);
-
-        // set tanks store invisible
-        TanksStore.setVisible(false);
-
-        this.getContentPane().add(TanksStore, BorderLayout.SOUTH);
         this.pack();
 
         //set jframe visible
@@ -265,68 +294,80 @@ public class Game extends JFrame implements KeyListener {
         //update current fps
         fps = (int)(1f/dt);
 
-        handleKeys();
+        switch(GameState) {
+            case MENU:
+                break;
+            case GAME:
+                handleKeys();
 
-        // wall collision
-        if (p.x + sz > WIDTH || p.x < 0) {
-            v.setX(v.x *= -1);
-            p.add(Vector.mult(v, dt));
-        }
-        if (p.y + sz > HEIGHT || p.y < 0) {
-            v.setY(v.y *= -1);
-            p.add(Vector.mult(v, dt));
+                // wall collision
+                if (p.x + sz > WIDTH || p.x < 0) {
+                    v.setX(v.x *= -1);
+                    p.add(Vector.mult(v, dt));
+                }
+                if (p.y + sz > HEIGHT || p.y < 0) {
+                    v.setY(v.y *= -1);
+                    p.add(Vector.mult(v, dt));
+                }
+
+                if (p2.x + sz > WIDTH || p2.x < 0) {
+                    v2.setX(v2.x *= -1);
+                    p2.add(Vector.mult(v2, dt));
+                }
+                if (p2.y + sz > HEIGHT || p2.y < 0) {
+                    v2.setY(v2.y *= -1);
+                    p2.add(Vector.mult(v2, dt));
+                }
+
+                if (p3.x + sz > WIDTH || p3.x < 0) {
+                    v3.setX(v3.x *= -1);
+                    p3.add(Vector.mult(v3, dt));
+                }
+                if (p3.y + sz > HEIGHT || p3.y < 0) {
+                    v3.setY(v3.y *= -1);
+                    p3.add(Vector.mult(v3, dt));
+                }
+
+                // aabb collision detection
+                if (
+                    // sz & sz2 = width and height
+                        isColliding(p, new Vector(sz, sz), p2, new Vector(sz2, sz2))
+                        ) {
+                    // v = v * (p - p2)
+                    v = Vector.mult(Vector.normalize(Vector.sub(p, p2)), v.mag());
+                    v2 = Vector.mult(Vector.normalize(Vector.sub(p2, p)), v2.mag());
+                }
+
+                if (
+                        isColliding(p, new Vector(sz, sz), p3, new Vector(sz3 + 50, sz3 + 250))
+                        ) {
+                    v = Vector.mult(Vector.normalize(Vector.sub(p, p3)), v.mag());
+                }
+
+                //v += a * dt;
+                //p += v * dt;
+                v.add(Vector.mult(a, dt));
+                v.mult(friction);
+                p.add(Vector.mult(v, dt));
+                a = new Vector(0,0);
+
+                v2.add(Vector.mult(a2, dt));
+                v2.mult(friction);
+                p2.add(Vector.mult(v2, dt));
+                a2 = new Vector(0,0);
+
+                v3.add(Vector.mult(a3, dt));
+                v3.mult(friction);
+                p3.add(Vector.mult(v3, dt));
+                a3 = new Vector(0,0);
+                break;
+            case STORE:
+                break;
+            case SCORE:
+                break;
         }
 
-        if (p2.x + sz > WIDTH || p2.x < 0) {
-            v2.setX(v2.x *= -1);
-            p2.add(Vector.mult(v2, dt));
-        }
-        if (p2.y + sz > HEIGHT || p2.y < 0) {
-            v2.setY(v2.y *= -1);
-            p2.add(Vector.mult(v2, dt));
-        }
 
-        if (p3.x + sz > WIDTH || p3.x < 0) {
-            v3.setX(v3.x *= -1);
-            p3.add(Vector.mult(v3, dt));
-        }
-        if (p3.y + sz > HEIGHT || p3.y < 0) {
-            v3.setY(v3.y *= -1);
-            p3.add(Vector.mult(v3, dt));
-        }
-
-        // aabb collision detection
-        if (
-                // sz & sz2 = width and height
-                isColliding(p, new Vector(sz, sz), p2, new Vector(sz2, sz2))
-                ) {
-            // v = v * (p - p2)
-            v = Vector.mult(Vector.normalize(Vector.sub(p, p2)), v.mag());
-            v2 = Vector.mult(Vector.normalize(Vector.sub(p2, p)), v2.mag());
-        }
-
-        if (
-                isColliding(p, new Vector(sz, sz), p3, new Vector(sz3 + 50, sz3 + 250))
-        ) {
-            v = Vector.mult(Vector.normalize(Vector.sub(p, p3)), v.mag());
-        }
-
-        //v += a * dt;
-        //p += v * dt;
-        v.add(Vector.mult(a, dt));
-        v.mult(friction);
-        p.add(Vector.mult(v, dt));
-        a = new Vector(0,0);
-
-        v2.add(Vector.mult(a2, dt));
-        v2.mult(friction);
-        p2.add(Vector.mult(v2, dt));
-        a2 = new Vector(0,0);
-
-        v3.add(Vector.mult(a3, dt));
-        v3.mult(friction);
-        p3.add(Vector.mult(v3, dt));
-        a3 = new Vector(0,0);
     }
 
     boolean isColliding(Vector p, Vector sz, Vector p2, Vector sz2) {
@@ -386,15 +427,13 @@ public class Game extends JFrame implements KeyListener {
                 break;
             case STORE:
                 break;
-            case TANK_STORE:
-                break;
             case SCORE:
                 break;
         }
     }
 
     public void ResetGame(){
-        player = new PlayerTank(WIDTH/2, HEIGHT/2, Color.PINK);
+        PlayerTank player = new PlayerTank(WIDTH / 2, HEIGHT / 2, Color.PINK);
 
         SCORE = 0;
     }
@@ -438,6 +477,11 @@ public class Game extends JFrame implements KeyListener {
         for (int i = keys.size() - 1; i >= 0; i--) {
             if (keyEvent.getKeyCode() == keys.get(i))
                 keys.remove(i);
+        }
+        switch (keyEvent.getKeyCode()) {
+            case KeyEvent.VK_SPACE:
+                player.fire();
+                break;
         }
     }
 

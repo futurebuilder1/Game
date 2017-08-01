@@ -1,3 +1,3 @@
 public class EnemyBullets {
-    float start_speed = 0.8f;
+    float start_speed;
 }
