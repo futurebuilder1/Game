@@ -1,3 +1,3 @@
-public class EnemyBullets {
+public class EnemyTanks {
     float start_speed;
 }

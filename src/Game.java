@@ -18,6 +18,8 @@ public class Game extends JFrame implements KeyListener {
     private final int WIDTH; //window width
     private final int HEIGHT; //window height
 
+    Character player1;
+
     // game states
     public enum GAME_STATES {
         MENU,
@@ -32,6 +34,9 @@ public class Game extends JFrame implements KeyListener {
 
     //double buffer strategy
     private BufferStrategy strategy;
+
+    String bullet_file = "Textures\\bullet.png";
+    BufferedImage bullet;
 
     private ArrayList<Integer> keys = new ArrayList<>();
 
@@ -93,6 +98,26 @@ public class Game extends JFrame implements KeyListener {
         this.HEIGHT = height;
     }
 
+    public BufferedImage loadTexture(String filepath) {
+        try {
+            return ImageIO.read(new File(filepath));
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Image loadTextureGif(String filepath) {
+        try {
+            return new ImageIcon(new File(filepath).toURI().toURL()).getImage();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /*
      * init()
      * initializes all variables needed before the window opens and refreshes
@@ -105,6 +130,10 @@ public class Game extends JFrame implements KeyListener {
         setBounds(0, 0, WIDTH, HEIGHT);
 
         lastFrame = System.currentTimeMillis();
+
+        bullet = loadTexture(bullet_file);
+
+        player1 = new Character(WIDTH, HEIGHT);
 
         // set state of tank (unlocked or locked)
         tankUnlocked[0] = unlocked;
@@ -344,6 +373,8 @@ public class Game extends JFrame implements KeyListener {
                     v = Vector.mult(Vector.normalize(Vector.sub(p, p3)), v.mag());
                 }
 
+                player1.update(dt);
+
                 //v += a * dt;
                 //p += v * dt;
                 v.add(Vector.mult(a, dt));
@@ -396,6 +427,7 @@ public class Game extends JFrame implements KeyListener {
                 //clear screen
                 gGame.clearRect(0,0, WIDTH, HEIGHT);
 
+                player1.draw(gGame);
                 //g.setColor(Color.red);
                 gGame.setColor(new Color(0, 200, 255));
                 gGame.fillRect(p.ix, p.iy, sz, sz);
@@ -442,20 +474,20 @@ public class Game extends JFrame implements KeyListener {
         for (int i = 0; i < keys.size(); i++) {
             switch(keys.get(i)) {
                 case KeyEvent.VK_UP:
-                    a = Vector.unit2D((float)Math.toRadians(-90));
-                    a.mult(push);
+                    player1.a = Vector.unit2D((float)Math.toRadians(-90));
+                    player1.a.mult(push);
                     break;
                 case KeyEvent.VK_DOWN:
-                    a = Vector.unit2D((float)Math.toRadians(90));
-                    a.mult(push);
+                    player1.a = Vector.unit2D((float)Math.toRadians(90));
+                    player1.a.mult(push);
                     break;
                 case KeyEvent.VK_LEFT:
-                    a = Vector.unit2D((float)Math.PI);
-                    a.mult(push);
+                    player1.a = Vector.unit2D((float)Math.PI);
+                    player1.a.mult(push);
                     break;
                 case KeyEvent.VK_RIGHT:
-                    a = Vector.unit2D(0);
-                    a.mult(push);
+                    player1.a = Vector.unit2D(0);
+                    player1.a.mult(push);
                     break;
             }
         }
@@ -480,7 +512,7 @@ public class Game extends JFrame implements KeyListener {
         }
         switch (keyEvent.getKeyCode()) {
             case KeyEvent.VK_SPACE:
-                player.fire();
+                player1.fireBullet(bullet);
                 break;
         }
     }
