@@ -22,7 +22,7 @@ public class Character {
         this.WIDTH = WIDTH;
         this.HEIGHT = HEIGHT;
 
-        p = new Vector(WIDTH/2, HEIGHT/2);
+        p = new Vector(100, 250);
         v = new Vector(100, 100);
         a = new Vector(0,0);
         sz = new Vector(100, 100);
@@ -33,9 +33,9 @@ public class Character {
     public void fireBullet(BufferedImage bulletimage) {
         bullets.add(new Bullet(
                 Vector.add(p, Vector.div( sz, 2)),
-                new Vector(-500,0),
+                new Vector(500,0),
                 new Vector(30, 20),
-                0.5f,
+                1.0f,
                 bulletimage
         ));
     }
