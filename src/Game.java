@@ -373,6 +373,19 @@ public class Game extends JFrame implements KeyListener {
                     v = Vector.mult(Vector.normalize(Vector.sub(p, p3)), v.mag());
                 }
 
+                if (
+                        isColliding(player1.p, player1.sz, p2, new Vector(sz2, sz2))
+                        ) {
+                    player1.v = Vector.mult(Vector.normalize(Vector.sub(player1.p, p2)), player1.v.mag());
+                    v2 = Vector.mult(Vector.normalize(Vector.sub(p2, player1.p)), v2.mag());
+                }
+
+                if (
+                        isColliding(player1.p, player1.sz, p3, new Vector(sz3 + 50, sz3 + 250))
+                        ) {
+                    player1.v = Vector.mult(Vector.normalize(Vector.sub(player1.p, p3)), player1.v.mag());
+                }
+
                 player1.update(dt);
 
                 //v += a * dt;
@@ -429,8 +442,6 @@ public class Game extends JFrame implements KeyListener {
 
                 player1.draw(gGame);
                 //g.setColor(Color.red);
-                gGame.setColor(new Color(0, 200, 255));
-                gGame.fillRect(p.ix, p.iy, sz, sz);
 
                 gGame.setColor(new Color(75, 255, 50));
                 gGame.fillRect(p2.ix, p2.iy, sz2, sz2);

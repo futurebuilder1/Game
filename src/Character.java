@@ -2,7 +2,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-public class Character {
+public class Character extends GameObject {
     Vector p;
     Vector v;
     Vector a;
@@ -25,7 +25,7 @@ public class Character {
         p = new Vector(100, 250);
         v = new Vector(100, 100);
         a = new Vector(0,0);
-        sz = new Vector(100, 100);
+        sz = new Vector(50, 50);
 
         this.sprite = sprite;
     }
@@ -67,5 +67,10 @@ public class Character {
         g.fillRect(p.ix, p.iy, sz.ix, sz.iy);
 
         for ( Bullet b : bullets) b.draw(g);
+    }
+
+    @Override
+    public void wrap(int Width, int Height) {
+
     }
 }
