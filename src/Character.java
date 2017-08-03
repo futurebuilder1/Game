@@ -65,7 +65,6 @@ public class Character extends GameObject {
     public void draw(Graphics2D g) {
         g.setColor(new Color(0, 200, 255));
         g.fillRect(p.ix, p.iy, sz.ix, sz.iy);
-
         for ( Bullet b : bullets) b.draw(g);
     }
 
