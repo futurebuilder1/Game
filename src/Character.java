@@ -62,6 +62,11 @@ public class Character extends GameObject {
         }
     }
 
+    public boolean isColliding(GameObject p, GameObject sz, GameObject p2, GameObject sz2) {
+        for (Bullet b : bullets) p.isColliding(b.p, b.sz, this.p, this.sz);
+        return false;
+    }
+
     public void draw(Graphics2D g) {
         g.setColor(new Color(0, 200, 255));
         g.fillRect(p.ix, p.iy, sz.ix, sz.iy);

@@ -30,6 +30,8 @@ public class PlayerTank extends GameObject{
 
     public boolean isThrust = false; //is currently accelerating
 
+    ArrayList<Bullet> bullets = new ArrayList<>();
+
     public PlayerTank(float x, float y, Color c){
         super(); //super gameobject constructor
         this.c = c;
@@ -145,12 +147,6 @@ public class PlayerTank extends GameObject{
         }
     }
 
-    @Override
-    public boolean isColliding(GameObject o){
-        //forward collision handlers
-        for(Bullet b : Bullets) o.isColliding(b);
-        return o.isColliding(this);
-    }
 
     @Override
     public void takeHit(){

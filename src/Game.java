@@ -62,6 +62,8 @@ public class Game extends JFrame implements KeyListener {
     Vector v3;
     Vector a3;
 
+    boolean isVisible = true;
+
     float friction = 0.95f;
     float push;
 
@@ -82,6 +84,10 @@ public class Game extends JFrame implements KeyListener {
     JButton Store_TankSix;
     JButton Store_Menu;
 
+    JPanel Score;
+    JButton Score_PlayAgain;
+    JButton Score_MainMenu;
+
     int score = 0;
     int money = 0;
 
@@ -90,6 +96,7 @@ public class Game extends JFrame implements KeyListener {
     int[] tankUnlocked = new int[6];
 
     private PlayerTank player;
+    private Wall wall;
 
     public Game(int width, int height, int fps){
         super("Tanks");
@@ -134,6 +141,7 @@ public class Game extends JFrame implements KeyListener {
         bullet = loadTexture(bullet_file);
 
         player1 = new Character(WIDTH, HEIGHT);
+        wall = new Wall(WIDTH, HEIGHT);
 
         // set state of tank (unlocked or locked)
         tankUnlocked[0] = unlocked;
@@ -279,6 +287,38 @@ public class Game extends JFrame implements KeyListener {
         this.getContentPane().add(Store, BorderLayout.SOUTH);
         this.pack();
 
+        Score = new JPanel(new GridLayout(2, 1));
+        Score.setPreferredSize(new Dimension(WIDTH, 250));
+
+        Score_PlayAgain = new JButton("Play Again");
+        Score_PlayAgain.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                GameState = GAME_STATES.MENU;
+                isVisible = true;
+                Score.setVisible(false);
+            }
+        });
+
+        Score_MainMenu = new JButton("Main Menu");
+        Score_MainMenu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                GameState = GAME_STATES.MENU;
+                Menu.setVisible(true);
+                isVisible = true;
+                Score.setVisible(false);
+            }
+        });
+
+        Score.add(Score_PlayAgain);
+        Score.add(Score_MainMenu);
+
+        Score.setVisible(false);
+
+        this.getContentPane().add(Score, BorderLayout.SOUTH);
+        this.pack();
+
         //set jframe visible
         setVisible(true);
 
@@ -357,6 +397,31 @@ public class Game extends JFrame implements KeyListener {
                     p3.add(Vector.mult(v3, dt));
                 }
 
+
+                for(Bullet b : player1.bullets){
+
+                    if(b.p.x < 0 || b.p.x > WIDTH)
+                        b.isActive = false;
+                    if(b.p.y < 0 || b.p.y > HEIGHT)
+                        b.isActive = false;
+
+                    if(isColliding(b.p, b.sz, wall.p, wall.sz))
+                        b.isActive = false;
+                    if(isColliding(b.p, b.sz, p2, new Vector(sz2, sz2))){
+                        isVisible = false;
+                        score += 100;
+                        b.isActive = false;
+
+                        GameState = GAME_STATES.SCORE;
+                        Score.setVisible(true);
+                    }
+
+
+                }
+
+
+
+
                 // aabb collision detection
                 if (
                     // sz & sz2 = width and height
@@ -381,12 +446,14 @@ public class Game extends JFrame implements KeyListener {
                 }
 
                 if (
-                        isColliding(player1.p, player1.sz, p3, new Vector(sz3 + 50, sz3 + 250))
+                        isColliding(player1.p, player1.sz, wall.p, wall.sz)
                         ) {
-                    player1.v = Vector.mult(Vector.normalize(Vector.sub(player1.p, p3)), player1.v.mag());
+                    player1.v = Vector.mult(Vector.normalize(Vector.sub(player1.p, wall.p)), player1.v.mag());
+                    wall.v = Vector.mult(Vector.normalize(Vector.sub(wall.p, player1.p)), wall.v.mag());
                 }
 
                 player1.update(dt);
+                wall.update(dt);
 
                 //v += a * dt;
                 //p += v * dt;
@@ -441,13 +508,13 @@ public class Game extends JFrame implements KeyListener {
                 gGame.clearRect(0,0, WIDTH, HEIGHT);
 
                 player1.draw(gGame);
+                wall.draw(gGame);
                 //g.setColor(Color.red);
 
-                gGame.setColor(new Color(75, 255, 50));
-                gGame.fillRect(p2.ix, p2.iy, sz2, sz2);
-
-                gGame.setColor(new Color(10, 50, 250));
-                gGame.fillRect(p3.ix, p3.iy, sz3 + 50, sz3 + 250);
+                if (isVisible) {
+                    gGame.setColor(new Color(75, 255, 50));
+                    gGame.fillRect(p2.ix, p2.iy, sz2, sz2);
+                }
 
                 //draw fps
                 gGame.setColor(Color.BLACK);
