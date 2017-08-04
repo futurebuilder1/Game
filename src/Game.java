@@ -87,6 +87,8 @@ public class Game extends JFrame implements KeyListener {
     JPanel Score;
     JButton Score_PlayAgain;
     JButton Score_MainMenu;
+    JLabel Score_Label;
+    JLabel Score_Score;
 
     int score = 0;
     int money = 0;
@@ -288,13 +290,12 @@ public class Game extends JFrame implements KeyListener {
         this.pack();
 
         Score = new JPanel(new GridLayout(2, 1));
-        Score.setPreferredSize(new Dimension(WIDTH, 250));
 
         Score_PlayAgain = new JButton("Play Again");
         Score_PlayAgain.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                GameState = GAME_STATES.MENU;
+                GameState = GAME_STATES.GAME;
                 isVisible = true;
                 Score.setVisible(false);
             }
@@ -305,9 +306,9 @@ public class Game extends JFrame implements KeyListener {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 GameState = GAME_STATES.MENU;
+                Score.setVisible(false);
                 Menu.setVisible(true);
                 isVisible = true;
-                Score.setVisible(false);
             }
         });
 
